@@ -1,8 +1,9 @@
 import { useSignIn } from '@clerk/clerk-expo'
-import { Link, useRouter } from 'expo-router'
+import { useRouter } from 'expo-router'
 import { Text, TextInput, TouchableOpacity, View, SafeAreaView, KeyboardAvoidingView, Platform, Image } from 'react-native'
 import React from 'react'
 import Ionicons from '@expo/vector-icons/Ionicons'
+import GoogleSignIn from '../components/GoogleSignIn'
 
 export default function Page() {
   const { signIn, setActive, isLoaded } = useSignIn()
@@ -11,6 +12,7 @@ export default function Page() {
 
   const [emailAddress, setEmailAddress] = React.useState('')
   const [password, setPassword] = React.useState('')
+  const [showPassword, setShowPassword] = React.useState(false)
 
   // Handle the submission of the sign-in form
   const onSignInPress = async () => {
@@ -27,7 +29,7 @@ export default function Page() {
       // and redirect the user
       if (signInAttempt.status === 'complete') {
         await setActive({ session: signInAttempt.createdSessionId })
-        router.replace('/')
+        router.replace('/(tabs)/')
       } else {
         // If the status isn't complete, check why. User might need to
         // complete further steps.
@@ -46,8 +48,8 @@ export default function Page() {
         className="flex-1">
 
             {/*Header*/}
-            <View className="flex-1 items-center justify-center">
-                <View className="items-center mb-8">
+            <View className="items-center pt-8 pb-4">
+                <View className="items-center mb-6">
                     <View className="w-20 h-20 bg-gradient-br from-blue-600 to-purple-600
                     rounded-2xl items-center justify-center mb-4 shadow-lg">
                         <Image source={require('../../../assets/icons/ios-light.png')} className="w-12 h-12" />
@@ -62,25 +64,105 @@ export default function Page() {
             </View>
 
             {/*Sign In Form*/}
-            <View className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
-                <Text className="text-2xl font-bold text-gray-900 mb-6 text-center">
-                    Welcome back!
-                </Text>
-            
-                <View className="flex-row items-center bg-gray-50 rounded-xl px-4 py-4 border border-gray-200">
-                    <Ionicons name="mail-outline" size={20} color="#6b7280" />
-                    <TextInput
-                        autoCapitalize="none"
-                        value={emailAddress}
-                        placeholder="Enter your email"
-                        placeholderTextColor="#9CA3AF"
-                        onChangeText={setEmailAddress}
-                        className="flex-1 ml-3 text-gray-900"
-                        editable={!isLoading}
-                    />
+            <View className="px-4">
+                <View className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6">
+                    <Text className="text-2xl font-bold text-gray-900 mb-6 text-center">
+                        Welcome back!
+                    </Text>
+
+                <View className="mb-4">
+                    <Text className="text-sm font-medium text-gray-700 mb-2">
+                        Email
+                    </Text>
+                    <View className="flex-row items-center bg-gray-50 rounded-xl px-4 py-4 border border-gray-200">
+                        <Ionicons name="mail-outline" size={20} color="#6b7280" />
+                        <TextInput
+                            autoCapitalize="none"
+                            value={emailAddress}
+                            placeholder="Enter your email"
+                            placeholderTextColor="#9CA3AF"
+                            onChangeText={setEmailAddress}
+                            className="flex-1 ml-3 text-gray-900"
+                            editable={!isLoading}
+                        />
+                    </View>
                 </View>
-            </View>    
-            
+
+                    <View className="mb-6">
+                        <Text className="text-sm font-medium text-gray-700 mb-2">
+                            Password
+                        </Text>
+                        <View className="flex-row items-center bg-gray-50 rounded-xl px-4 py-4 border border-gray-200">
+                            <Ionicons name="lock-closed-outline" size={20} color="#6b7280" />
+                            <TextInput
+                                autoCapitalize="none"
+                                value={password}
+                                placeholder="Enter your password"
+                                placeholderTextColor="#9CA3AF"
+                                secureTextEntry={!showPassword}
+                                onChangeText={setPassword}
+                                className="flex-1 ml-3 text-gray-900"
+                                editable={!isLoading}
+                            />
+                            <TouchableOpacity
+                                onPress={() => setShowPassword(!showPassword)}
+                                activeOpacity={0.7}
+                                className="ml-2"
+                            >
+                                <Ionicons 
+                                    name={showPassword ? "eye-outline" : "eye-off-outline"} 
+                                    size={20} 
+                                    color="#6b7280" 
+                                />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>    
+
+                <TouchableOpacity onPress={onSignInPress} disabled={isLoading}
+                className={`rounded-xl py-4 shadow-sm mb-4 ${isLoading ? 'bg-gray-400' : 'bg-blue-600'}`}
+                activeOpacity={0.8}>
+                    <View className="flex-row items-center justify-center">
+                        {isLoading ? (
+                            <Ionicons name="refresh" size={20} color="white" />
+                        ) : (
+                            <Ionicons name="log-in-outline" size={20} color="white" />
+                        )}
+                        <Text className="text-white font-semibold text-lg ml-2">
+                            {isLoading ? 'Signing in...' : 'Sign in'}
+                        </Text>
+                    </View>
+                </TouchableOpacity>
+
+                <View className="my-4">
+                    <View className="flex-row items-center mb-4"> 
+                        <View className="flex-1 h-px bg-gray-200"></View>
+                        <Text className="px-4 text-gray-500 text-sm">or</Text>
+                        <View className="flex-1 h-px bg-gray-200"></View>
+                    </View>
+
+                    {/* Sign in with Google */}
+                    <View className="items-center">
+                        <GoogleSignIn />
+                    </View>
+
+                    <View className="flex-row items-center justify-center mt-4">
+                        <Text className='text-gray-600'>
+                            Don't have an account?
+                        </Text>
+                        <TouchableOpacity onPress={() => router.push('/sign-up')}>
+                            <Text className='text-blue-600 font-semibold ml-1'>Sign Up</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+                
+                {/*Footer*/}
+                <View className="pb-6">
+                    <Text className='text-center text-gray-500 text-sm mt-2'>
+                        Start your fitness journey today with EchoFit!
+                    </Text>
+                </View>
+            </View>
         </KeyboardAvoidingView>
     </SafeAreaView>
   )
