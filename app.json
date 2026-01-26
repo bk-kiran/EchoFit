@@ -13,7 +13,8 @@
           "origin": "https://n"
         }
       ],
-      "./plugins/withIosIcons.js"
+      "./plugins/withIosIcons.js",
+      "expo-secure-store"
     ],
     "name": "fit-app",
     "slug": "fit-app",
